@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ルート検索 - GCP Routes API</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドパネル -->
+        <aside class="side-panel">
+            <header class="panel-header">
+                <h1>🚗 ルート検索</h1>
+                <p class="subtitle">車での移動ルートと所要時間を検索</p>
+            </header>
+
+            <form id="route-form" class="route-form">
+                <div class="form-group">
+                    <label for="origin">
+                        <span class="marker origin-marker">A</span>
+                        出発地
+                    </label>
+                    <input 
+                        type="text" 
+                        id="origin" 
+                        name="origin" 
+                        placeholder="例: 東京駅"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="destination">
+                        <span class="marker destination-marker">B</span>
+                        目的地
+                    </label>
+                    <input 
+                        type="text" 
+                        id="destination" 
+                        name="destination" 
+                        placeholder="例: 横浜駅"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+
+                <button type="submit" id="search-btn" class="search-btn">
+                    <span class="btn-text">ルートを検索</span>
+                    <span class="btn-loading" hidden>
+                        <span class="spinner"></span>
+                        検索中...
+                    </span>
+                </button>
+            </form>
+
+            <!-- 結果表示エリア -->
+            <div id="result-panel" class="result-panel" hidden>
+                <h2>検索結果</h2>
+                <div class="result-cards">
+                    <div class="result-card">
+                        <div class="result-icon">🕐</div>
+                        <div class="result-content">
+                            <span class="result-label">所要時間</span>
+                            <span id="duration" class="result-value">--</span>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon">📍</div>
+                        <div class="result-content">
+                            <span class="result-label">距離</span>
+                            <span id="distance" class="result-value">--</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="route-details">
+                    <div class="route-point">
+                        <span class="marker origin-marker">A</span>
+                        <span id="origin-address" class="address">--</span>
+                    </div>
+                    <div class="route-line"></div>
+                    <div class="route-point">
+                        <span class="marker destination-marker">B</span>
+                        <span id="destination-address" class="address">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- エラー表示エリア -->
+            <div id="error-panel" class="error-panel" hidden>
+                <div class="error-content">
+                    <span class="error-icon">⚠️</span>
+                    <span id="error-message">エラーが発生しました</span>
+                </div>
+            </div>
+
+            <footer class="panel-footer">
+                <p>Powered by Google Maps Platform</p>
+            </footer>
+        </aside>
+
+        <!-- 地図エリア -->
+        <main class="map-container">
+            <div id="map"></div>
+        </main>
+    </div>
+
+    <!-- Google Maps JavaScript API -->
+    <!-- 注意: YOUR_MAPS_API_KEY を実際のAPIキーに置き換えてください -->
+    <script>
+        window.BACKEND_URL = 'http://localhost:8000';
+
+        // サーバーからAPIキーを取得してGoogle Mapsを読み込む
+        async function loadGoogleMaps() {
+            try {
+                const response = await fetch(`${window.BACKEND_URL}/api/config`);
+                if (!response.ok) throw new Error('Failed to load config');
+                const data = await response.json();
+                
+                if (!data.mapsApiKey) throw new Error('API Key is missing');
+
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${data.mapsApiKey}&language=ja&region=JP&libraries=geometry&callback=initMap`;
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+            } catch (error) {
+                console.error('Failed to load Google Maps API info:', error);
+                const mapEl = document.getElementById('map');
+                if (mapEl) {
+                    mapEl.innerHTML = '<div style="padding: 20px; color: red;">地図の読み込みに失敗しました。<br>バックエンドサーバーを確認してください。</div>';
+                }
+            }
+        }
+        
+        // app.jsの読み込みを待ってから実行（initMapの存在を保証するため）
+        window.addEventListener('load', loadGoogleMaps);
+    </script>
+    <script src="js/app.js"></script>
+</body>
+</html>

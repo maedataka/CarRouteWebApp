@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/main/.schema/devbox.schema.json",
+  "packages": [
+    "python@3.12",
+    "python312Packages.pip",
+    "python312Packages.virtualenv"
+  ],
+  "shell": {
+    "init_hook": [
+      "echo '🚗 Welcome to GCP Routes API project!'",
+      "python --version",
+      "if [ ! -d .venv ]; then python -m venv .venv; fi",
+      "source .venv/bin/activate"
+    ],
+    "scripts": {
+      "install": "source .venv/bin/activate && pip install -r backend/requirements.txt",
+      "backend": "source .venv/bin/activate && cd backend && uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+      "frontend": "cd frontend && python -m http.server 3000"
+    }
+  }
+}
