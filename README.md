@@ -2,6 +2,10 @@
 
 Google Cloud Platform の Routes API を使用して、特定地点間での車の移動ルートと移動時間を地図上に表示するWebアプリケーションです。
 
+# 画面のサンプル
+
+![sample](./sample.png)
+
 ## 機能
 
 - 住所・場所名での出発地・目的地の入力
